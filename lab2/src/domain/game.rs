@@ -34,11 +34,10 @@ impl Game {
 
     pub fn add_item_to_player(&mut self, player_name: &str, item: Item) {
         if let Some(player) = self.players.iter_mut().find(|p| p.name == player_name) {
-            player.collect_item(&item.name); // Pass item.name directly
+            player.collect_item(&item.name);
         }
     }
 
-    // Change to mutable reference
     pub fn start_game(&mut self) {
         println!("Starting the game!");
 
