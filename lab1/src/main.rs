@@ -24,7 +24,7 @@ trait Discount {
     fn apply_discount(&self, total: f64) -> f64;
 }
 
-// PercentageDiscount for percentage-based discounts
+// PercentageDiscount applies a percentage-based discount
 struct PercentageDiscount {
     percent: f64,
 }
@@ -72,14 +72,14 @@ impl Cart {
         } else {
             println!("\nItems in your cart:");
             for product in &self.products {
-                println!("- {}: ${:.2}", product.name, product.price);
+                println!("- {}: {:.2} MDL", product.name, product.price);
             }
-            println!("Total: ${:.2}", self.total());
+            println!("Total: {:.2} MDL", self.total());
         }
     }
 }
 
-// Trait for OCP principle it can be extended aswell
+// Trait for OCP: enables color customization and can be extended for different text effects
 trait ColorfulText {
     fn to_colorful_string(&self) -> String;
 }
@@ -124,39 +124,39 @@ fn main() {
         println!("3. View cart");
         println!("4. Checkout and Exit");
 
-        let choice = get_input("Enter choice(1-4): ");
+        let choice = get_input("Enter choice (1-4): ");
         match choice.as_str() {
             "1" => {
                 let name = get_input("Enter product name: ");
-                let price: f64 = get_input("Enter product price: MDL")
+                let price: f64 = get_input("Enter product price: ")
                     .parse()
                     .expect("Please enter a valid number");
 
                 let product = Product::new(product_id, &name, price);
                 cart.add_product(product);
                 product_id += 1;
-                println!("Added '{}' to your cart.", name);
+                println!("Added '{}' to your cart at {:.2} MDL", name, price);
             }
             "2" => {
-                let percent: f64 = get_input("Enter discount(%): ")
+                let percent: f64 = get_input("Enter discount (%): ")
                     .parse()
                     .expect("Please enter a valid number");
 
                 let discount = PercentageDiscount { percent };
                 cart.set_discount(Box::new(discount));
-                println!("Applied a {}% discount.", percent);
+                println!("Applied a {}% discount", percent);
             }
             "3" => {
                 cart.display_cart();
             }
             "4" => {
-                println!("\nFinal buy:");
+                println!("\nFinalizing your purchase:");
                 cart.display_cart();
-                println!("Thank you for shopping! Goodbye!");
+                println!("Thank you for shopping!");
                 break;
             }
             _ => {
-                println!("Invalid choice, please try again.");
+                println!("Invalid choice, try again");
             }
         }
     }
