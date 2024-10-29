@@ -30,6 +30,7 @@ The main classes in the project are:
 
 - **Factory Method**: Used to create instances of `Player`, `Enemy`, and `Item` through dedicated factory classes (`PlayerFactory`, `EnemyFactory`).
 - **Singleton**: Ensured that only one instance of the `Game` class exists throughout the application.
+- **Builder Method**: In the same singleton we are implementing a half-backed builder method so it can build the full extend of our methods and attributes in the main file.
 
 ## Implemented Creational Design Patterns
 
@@ -100,6 +101,63 @@ pub fn start_game(&mut self) {
             }
         }
     }
+```
+
+- Builder: We create a GameBuilder Method that will build our game so it is innitiated with all the attributes we need step by step it will add players, enemies, etc. to our game and will figure out the system itself.
+
+```rust
+pub struct GameBuilder {
+    players: Vec<Player>,
+    enemies: Vec<Enemy>,
+}
+
+impl GameBuilder {
+    pub fn new() -> Self {
+        GameBuilder {
+            players: Vec::new(),
+            enemies: Vec::new(),
+        }
+    }
+
+    pub fn add_player(mut self, player: Player) -> Self {
+        self.players.push(player);
+        self
+    }
+
+    pub fn add_enemy(mut self, enemy: Enemy) -> Self {
+        self.enemies.push(enemy);
+        self
+    }
+
+    pub fn build(self) {
+        let game = Game::instance();
+        for player in self.players {
+            game.add_player(player);
+        }
+        for enemy in self.enemies {
+            game.add_enemy(enemy);
+        }
+    }
+}
+```
+
+After that in our client.rs file we implement the builder with all the attributes set as we want them to be set.
+
+```rust
+let mut builder = domain::game::GameBuilder::new();
+
+    // Create some players and items
+    let player1 = domain::factory::player_factory::PlayerFactory::create_player("Hero");
+    let player2 = domain::factory::player_factory::PlayerFactory::create_player("Sidekick");
+    let sword = domain::factory::player_factory::ItemFactory::create_item("Sword");
+    let shield = domain::factory::player_factory::ItemFactory::create_item("Shield");
+    let enemy = domain::factory::enemy_factory::EnemyFactory::create_enemy("Goblin");
+
+    // Add players and enemy to the builder
+    builder = builder.add_player(player1).add_player(player2).add_enemy(enemy);
+
+    // Build the game (adds players and enemies to the singleton instance)
+    builder.build();
 ```
 
 ## Conclusion

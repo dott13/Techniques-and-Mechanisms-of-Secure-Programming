@@ -59,3 +59,37 @@ impl Game {
         }
     }
 }
+
+pub struct GameBuilder {
+    players: Vec<Player>,
+    enemies: Vec<Enemy>,
+}
+
+impl GameBuilder {
+    pub fn new() -> Self {
+        GameBuilder {
+            players: Vec::new(),
+            enemies: Vec::new(),
+        }
+    }
+
+    pub fn add_player(mut self, player: Player) -> Self {
+        self.players.push(player);
+        self
+    }
+
+    pub fn add_enemy(mut self, enemy: Enemy) -> Self {
+        self.enemies.push(enemy);
+        self
+    }
+
+    pub fn build(self) {
+        let game = Game::instance();
+        for player in self.players {
+            game.add_player(player);
+        }
+        for enemy in self.enemies {
+            game.add_enemy(enemy);
+        }
+    }
+}
