@@ -1,29 +1,51 @@
+use domain::{factory::{enemy_factory::EnemyFactory, player_factory::{ItemFactory, PlayerFactory}}, game_system::GameSystem, utils::entities::EntityGroup};
+
 mod domain;
 
 fn main() {
-    // Use GameBuilder to set up the game instance
-    let mut builder = domain::game::GameBuilder::new();
-    
-    // Create some players and items
-    let player1 = domain::factory::player_factory::PlayerFactory::create_player("Hero");
-    let player2 = domain::factory::player_factory::PlayerFactory::create_player("Sidekick");
-    let sword = domain::factory::player_factory::ItemFactory::create_item("Sword");
-    let shield = domain::factory::player_factory::ItemFactory::create_item("Shield");
-    let enemy = domain::factory::enemy_factory::EnemyFactory::create_enemy("Goblin");
+    // Create a game system FACADE
+    let game_system = GameSystem::new();
 
-    // Add players and enemy to the builder
-    builder = builder.add_player(player1).add_player(player2).add_enemy(enemy);
+    let player1 = PlayerFactory::create_player("Hero");
+    let player2 = PlayerFactory::create_player("Sidekick");
     
-    // Build the game (adds players and enemies to the singleton instance)
-    builder.build();
-    
-    // Get the singleton game instance
-    let game = domain::game::Game::instance();
+    let basic_enemy = EnemyFactory::create_enemy("Goblin");
+    let armored_enemy = EnemyFactory::create_armored_enemy("Armored Troll", 5);
+    println!(
+        "{} has {} health and {} armor.",
+        armored_enemy.get_name(),
+        armored_enemy.get_health(),
+        5
+    );
 
-    // Add items to players
-    game.add_item_to_player("Hero", sword);
-    game.add_item_to_player("Sidekick", shield);
-    
-    // Start the game loop
-    game.start_game();
+    let sword = ItemFactory::create_item("Sword");
+    let shield = ItemFactory::create_item("Shield");
+
+    // Create an entity group using the COMPOSITE pattern
+    let mut party = EntityGroup::new("Main Party".to_string());
+    // Add the players to the entity group
+    party.add_entity(Box::new(player1.clone()));
+    party.add_entity(Box::new(player2.clone()));
+
+    // Display initial party status
+    party.display_group_status();
+
+    let prepared_enemies = game_system.prepare_enemies(vec![
+        basic_enemy,
+        armored_enemy,
+    ]);
+
+    game_system.initialize_game(
+        vec![player1.clone(), player2.clone()],
+        prepared_enemies
+    );
+
+    // Equip players using the facade
+    game_system.equip_players(vec![
+        ("Hero", sword),
+        ("Sidekick", shield),
+    ]);
+
+    // Start the game
+    game_system.run_game();
 }

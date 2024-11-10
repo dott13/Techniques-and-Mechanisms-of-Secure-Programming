@@ -1,9 +1,10 @@
 use crate::domain::models::player::{Player, Item};
-use crate::domain::models::enemy::Enemy;
+
+use super::models::enemy::EnemyBehavior;
 
 pub struct Game {
     players: Vec<Player>,
-    enemies: Vec<Enemy>,
+    enemies: Vec<Box<dyn EnemyBehavior>>,
 }
 
 impl Game {
@@ -28,9 +29,9 @@ impl Game {
         self.players.push(player);
     }
 
-    pub fn add_enemy(&mut self, enemy: Enemy) {
+    pub fn add_enemy(&mut self, enemy: Box<dyn EnemyBehavior>) {
         self.enemies.push(enemy);
-    }
+    }    
 
     pub fn add_item_to_player(&mut self, player_name: &str, item: Item) {
         if let Some(player) = self.players.iter_mut().find(|p| p.name == player_name) {
@@ -40,56 +41,21 @@ impl Game {
 
     pub fn start_game(&mut self) {
         println!("Starting the game!");
-
         for player in &self.players {
             player.show_inventory();
         }
-
-        // Simple combat simulation
+    
+        // Combat simulation
         for enemy in &mut self.enemies {
-            println!("A wild {} appears!", enemy.name);
+            println!("A wild {} appears!", enemy.get_name());
             for player in &mut self.players {
-                println!("{} attacks {}!", player.name, enemy.name);
-                enemy.attack(10); // Simulate an attack
-                if enemy.health <= 0 {
-                    println!("{} has been defeated!", enemy.name);
+                println!("{} attacks {}!", player.name, enemy.get_name());
+                enemy.attack(10); // This should dynamically call the correct implementation
+                if enemy.get_health() <= 0 {
+                    println!("{} has been defeated!", enemy.get_name());
                     break;
                 }
             }
         }
-    }
-}
-
-pub struct GameBuilder {
-    players: Vec<Player>,
-    enemies: Vec<Enemy>,
-}
-
-impl GameBuilder {
-    pub fn new() -> Self {
-        GameBuilder {
-            players: Vec::new(),
-            enemies: Vec::new(),
-        }
-    }
-
-    pub fn add_player(mut self, player: Player) -> Self {
-        self.players.push(player);
-        self
-    }
-
-    pub fn add_enemy(mut self, enemy: Enemy) -> Self {
-        self.enemies.push(enemy);
-        self
-    }
-
-    pub fn build(self) {
-        let game = Game::instance();
-        for player in self.players {
-            game.add_player(player);
-        }
-        for enemy in self.enemies {
-            game.add_enemy(enemy);
-        }
-    }
+    }    
 }

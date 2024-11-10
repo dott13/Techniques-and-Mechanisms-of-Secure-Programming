@@ -24,6 +24,16 @@ impl Player {
     }
 }
 
+impl Clone for Player {
+    fn clone(&self) -> Self {
+        Player {
+            name: self.name.clone(),
+            health: self.health,
+            inventory: self.inventory.clone(),
+        }
+    }
+}
+
 pub struct Item {
     pub name: String,
 }
